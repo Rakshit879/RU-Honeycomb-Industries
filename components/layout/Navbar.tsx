@@ -4,22 +4,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-// import { usePathname } from "next/navigation";
-
-const links = [
-    { title: "Home", href: "/" },
-    { title: "About", href: "/about" },
-    { title: "Products", href: "/products" },
-    { title: "Manufacturing", href: "/manufacturing" },
-    { title: "Gallery", href: "/gallery" },
-    { title: "Contact", href: "/contact" },
-];
-
+import { usePathname } from "next/navigation";
+import Container from "../common/Container";
+import { Button } from "@/components/ui/button";
+import { navigation } from "@/data/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function Navbar() {
     const [open, setOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
-    // const pathname = usePathname();
+    const pathname = usePathname();
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 30);
@@ -28,13 +22,9 @@ export default function Navbar() {
     }, []);
 
     return (
-        <header
-            className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled
-                ? "bg-white/80 backdrop-blur-xl shadow-md"
-                : "bg-transparent"
-                }`}
-        >
-            <div className="mx-auto flex h-24 max-w-7xl items-center justify-between px-6">
+        <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled? "bg-white/80 backdrop-blur-xl shadow-md": "bg-transparent"}`}>
+            <Container>
+            <div className="flex h-24 items-center justify-between">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-3">
                     <Image
@@ -42,7 +32,7 @@ export default function Navbar() {
                         alt="RU Honeycomb Industries"
                         width={170}
                         height={55}
-                        className="h-auto w-[170px]"
+                        className="h-auto w-[170px] transition duration-300 hover:scale-105"
                         priority
                     />
 
@@ -59,18 +49,18 @@ export default function Navbar() {
 
                 {/* Desktop */}
                 <nav className="hidden items-center gap-8 lg:flex">
-                    {links.map((link) => (
+                    {navigation.map((link) => (
                         <Link
                             key={link.title}
                             href={link.href}
-                            className="relative text-[15px] font-medium text-slate-700 transition-all duration-300 hover:text-blue-700 after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:w-0 after:bg-blue-700 after:transition-all after:duration-300 hover:after:w-full ">
+                            className={`relative text-[15px] font-medium transition-all duration-300 ${pathname === link.href? "text-blue-700":"text-slate-700 hover:text-blue-700"} after:absolute after:left-0 after:-bottom-1 after:h-[2px] after:bg-blue-700 after:transition-all after:duration-300 ${pathname === link.href ? "after:w-full": "after:w-0 over:after:w-full"}`}>
                             {link.title}
                         </Link>
                     ))}
 
-                    <button className="rounded-xl bg-blue-700 px-6 py-3 text-white transition hover:bg-blue-800">
+                    <Button size="lg" className="rounded-full px-7">
                         Request Quote
-                    </button>
+                    </Button>
                 </nav>
 
                 {/* Mobile */}
@@ -83,10 +73,17 @@ export default function Navbar() {
                 </button>
             </div>
 
-            {open && (
-                <div className="border-t bg-white lg:hidden">
+            <AnimatePresence>
+                {open && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.25 }}
+                        className="border-t bg-white lg:hidden shadow-lg"
+                    >
                     <nav className="flex flex-col gap-5 p-6">
-                        {links.map((link) => (
+                        {navigation.map((link) => (
                             <Link
                                 key={link.title}
                                 href={link.href}
@@ -100,8 +97,10 @@ export default function Navbar() {
                             Request Quote
                         </button>
                     </nav>
-                </div>
-            )}
+                    </motion.div>
+  )}
+</AnimatePresence>
+            </Container>
         </header>
     );
 }
